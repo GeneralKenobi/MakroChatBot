@@ -50,17 +50,18 @@ func panicOnError(msg string, err error) {
 
 // Handles incomming messages
 func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate) {
+
+	// User that sent the message
 	user := message.Author
+
+	// Don't respond to ourselves or other bots
 	if user.ID == botID || user.Bot {
-		//Do nothing because the bot is talking
-		fmt.Printf("Not responding to myself xd\n")
 		return
 	}
 
-	fmt.Printf("Message: %+v || From: %s\n", message.Content, message.Author)
-
-	if message.Content == "xd" {
-		discord.ChannelMessageSend(message.ChannelID, "xd")
+	// Simple echo for testing purposes
+	if message.Content == "xd123" {
+		discord.ChannelMessageSend(message.ChannelID, "xd123")
 	}
 }
 
