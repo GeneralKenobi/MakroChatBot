@@ -15,6 +15,11 @@ func Roll() (int, string) {
 			reaction = "I don't care what universe you're from, that's got to hurt!"
 		}
 
+	case randomNumber > 95:
+		{
+			reaction = "UNLIMITED POWER!"
+		}
+
 	case randomNumber > 75:
 		{
 			reaction = "A surprise, to be sure, but a welcome one"

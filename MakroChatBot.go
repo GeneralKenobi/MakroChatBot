@@ -2,9 +2,13 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
+
+	"./usercommands"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -16,6 +20,8 @@ var (
 )
 
 func main() {
+
+	rand.Seed(time.Now().UTC().UnixNano())
 
 	// Create a new session for Discord
 	discord, err := discordgo.New("Bot " + botID)
@@ -30,6 +36,9 @@ func main() {
 	err = discord.Open()
 	panicOnError("Error opening connection to Discord", err)
 	defer discord.Close()
+
+	// Update status with a cool message
+	discord.UpdateStatus(0, "Hello There!")
 
 	// Wait here for control signal that closes the bot
 	fmt.Println("Running, press CTRL-C to exit.")
@@ -62,6 +71,22 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	// Simple echo for testing purposes
 	if message.Content == "xd123" {
 		discord.ChannelMessageSend(message.ChannelID, "xd123")
+	}
+
+	if message.Content == "!Roll" {
+
+		number, reaction := usercommands.Roll()
+
+		discord.ChannelMessageSend(message.ChannelID, fmt.Sprintf("%d", number))
+		discord.ChannelMessageSend(message.ChannelID, reaction)
+	}
+
+	if message.Content == "!Group1" {
+		discord.ChannelMessageSend(message.ChannelID, "https://i.kym-cdn.com/photos/images/facebook/001/290/942/c31.png")
+	}
+
+	if message.Content == "!Group2" {
+		discord.ChannelMessageSend(message.ChannelID, "https://vignette.wikia.nocookie.net/internet-meme/images/6/6e/Pogchamp.jpg/revision/latest?cb=20180310053228")
 	}
 }
 
