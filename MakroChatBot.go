@@ -16,7 +16,7 @@ import (
 // Configuration data
 var (
 	commandPrefix = "1"
-	botID         = "NTUzOTgxOTg2MTE3Nzc5NDc3.D2WZGg.OVHt_avuWXlWfLw_p3xPe31zr58"
+	botID         = ""
 )
 
 func main() {
