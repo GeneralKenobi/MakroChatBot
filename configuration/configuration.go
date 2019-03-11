@@ -36,8 +36,8 @@ func GetConfig() (ct.Config, error) {
 	// If decoding succeeded, return the struct
 	if decodeError == nil {
 		return configuration, nil
-	} else {
-		// Otherwise return an empty struct and the error
-		return ct.Config{}, decodeError
 	}
+
+	// Otherwise return an empty struct and the error
+	return ct.Config{}, decodeError
 }
