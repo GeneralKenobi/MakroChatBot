@@ -8,29 +8,34 @@ import (
 	"syscall"
 	"time"
 
+	"./commands"
+	"./configuration"
 	"./usercommands"
 
 	"github.com/bwmarrin/discordgo"
-)
-
-// Configuration data
-var (
-	commandPrefix = "1"
-	botID         = "NTUzOTgxOTg2MTE3Nzc5NDc3.D2WZGg.OVHt_avuWXlWfLw_p3xPe31zr58"
 )
 
 func main() {
 
 	rand.Seed(time.Now().UTC().UnixNano())
 
+	// Get the configuration file
+	configuration, configError := configuration.GetConfig()
+
+	// If there was an error, print it and return
+	if configError != nil {
+		fmt.Println(configError)
+		return
+	}
+
 	// Create a new session for Discord
-	discord, err := discordgo.New("Bot " + botID)
+	discord, err := discordgo.New("Bot " + configuration.Token)
 
 	// Check if there was an error
 	panicOnError("error creating discord session", err)
 
 	// Add handler for incomming messages
-	discord.AddHandler(commandHandler)
+	discord.AddHandler(commands.ParseCommand)
 
 	// Try to open connection, check if there were errors
 	err = discord.Open()
@@ -58,13 +63,13 @@ func panicOnError(msg string, err error) {
 }
 
 // Handles incomming messages
-func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate) {
+func messageHandler(discord *discordgo.Session, message *discordgo.MessageCreate) {
 
 	// User that sent the message
 	user := message.Author
 
 	// Don't respond to ourselves or other bots
-	if user.ID == botID || user.Bot {
+	if user.ID == "xd" || user.Bot {
 		return
 	}
 
