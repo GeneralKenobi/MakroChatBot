@@ -22,7 +22,7 @@ func main() {
 	// Get the configuration file
 	configuration, configError := configuration.GetConfig()
 
-	// If there was an error, print it and return
+	// If there was an error, log it and return
 	if configError != nil {
 		fmt.Println(configError)
 		return
