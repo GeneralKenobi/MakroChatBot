@@ -3,6 +3,7 @@ package commands
 import (
 	comm "../communication"
 	"errors"
+	"fmt"
 	dg "github.com/bwmarrin/discordgo"
 	"strings"
 )
@@ -16,23 +17,18 @@ var registeredCommands = make(map[string]func([]string) ([]string, error))
 // commandPrefix is the registered command prefix
 var commandPrefix string
 
-// botID is the ID of the bot - used to ignore our own messages
-var botID string
-
 // ParseCommand is a handler for incomming messages
 func ParseCommand(session *dg.Session, message *dg.MessageCreate) {
 
 	// Check if we're initialized
-	if ok, _ := isInitialized(); !ok {
+	if ok, err := isInitialized(); !ok {
 		// TODO: Log error - Handler not initialized
+		fmt.Println(err.Error())
 		return
 	}
 
-	// Get the ID of the sender
-	userID := message.Author.ID
-
-	// Return if it's our message
-	if userID == botID {
+	// Don't respond to any bots (including ourselvers)
+	if message.Author.Bot {
 		return
 	}
 
@@ -60,8 +56,8 @@ func ParseCommand(session *dg.Session, message *dg.MessageCreate) {
 
 		// TODO: Log that a command is executed
 
-		// Organize the arguments into one slice - userID always comes first
-		args := append([]string{userID}, slice[1:]...)
+		// Organize the arguments into one slice - username always comes first
+		args := append([]string{message.Author.Username}, slice[1:]...)
 
 		// If successful, log the event, execute the command and pass the remaining substrings
 		if messages, err := function(args); err == nil {
@@ -103,21 +99,6 @@ func RegisterCommandPrefix(prefix string) bool {
 	return true
 }
 
-// RegisterBotID registers the given string as bot's ID
-// BotID can be registered only once. Future calls to this function won't do anything.
-// Returns true if registration was successful, false otherwise.
-func RegisterBotID(id string) bool {
-
-	// If there already is a botID defined
-	if botID == "" {
-		return false
-	}
-
-	// Otherwise assign the new value and return success
-	botID = id
-	return true
-}
-
 // isPrefixRegistered returns true if commandPrefix was correctly registered
 func isPrefixRegistered() bool {
 	return commandPrefix != IllegalPrefix
@@ -130,11 +111,6 @@ func isInitialized() (bool, error) {
 	// Check if prefix was initialized
 	if !isPrefixRegistered() {
 		return false, errors.New("Handler error: prefix was not initialized")
-	}
-
-	// Check if botID was initialized
-	if botID == "" {
-		return false, errors.New("Handler error: botID was not initialized")
 	}
 
 	return true, nil
