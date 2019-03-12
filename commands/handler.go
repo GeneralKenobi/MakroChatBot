@@ -36,8 +36,8 @@ func ParseCommand(session *dg.Session, message *dg.MessageCreate) {
 		return
 	}
 
-	// The message content
-	input := message.Content
+	// The message content, converted to lower-case
+	input := strings.ToLower(message.Content)
 
 	// Check if the input string contains the registered prefix - if not, return as there is nothing we can do
 	if !strings.HasPrefix(input, commandPrefix) {
@@ -73,6 +73,7 @@ func ParseCommand(session *dg.Session, message *dg.MessageCreate) {
 // RegisterCommand registers command - assigns a specific function to a specific string.
 // When user types that string the assigned function will be executed.
 // DO NOT use any prefixes when registering functions.
+// Command names are case insensitive.
 func RegisterCommand(name string, function func([]string) ([]string, error)) bool {
 
 	// Check if there's already a command registered for that name
