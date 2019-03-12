@@ -2,7 +2,6 @@ package roll
 
 import (
 	"errors"
-	dgo "github.com/bwmarrin/discordgo"
 	"math/rand"
 	"strconv"
 )
@@ -44,24 +43,24 @@ func rollHelper(max int, userID string) []string {
 	randomNumber := rand.Intn(max + 1)
 
 	// Create message for result
-	rollMessage := userID + " rolled (0 - " + string(max) + "): " + string(randomNumber) + "!"
+	rollMessage := userID + " rolled (0 - " + strconv.Itoa(max) + "): " + strconv.Itoa(randomNumber) + "!"
 
 	var reaction string
 
 	// Assign a reaction to the randomed number
 	switch {
 
-	case randomNumber < 10:
+	case randomNumber < max/10:
 		{
 			reaction = "I don't care what universe you're from, that's got to hurt!"
 		}
 
-	case randomNumber > 95:
+	case randomNumber > 19*max/20:
 		{
 			reaction = "UNLIMITED POWER!"
 		}
 
-	case randomNumber > 75:
+	case randomNumber > 3*max/4:
 		{
 			reaction = "A surprise, to be sure, but a welcome one"
 		}
