@@ -4,14 +4,18 @@ import (
 	dg "github.com/bwmarrin/discordgo"
 
 	"../commands"
+	roll "../commands/roll"
 	"../communication"
 	"../configuration"
+	ct "../customtypes"
+	"math/rand"
+	"time"
 )
 
-// Performs all initization for the program.
+// Run performs all initization for the program.
 // If everything goes well then an open discordgo session is returned - IT HAS TO BE CLOSED BEFORE CLOSING THE PROGRAM.
 // If any crucial part of initization fails then the returned session will be null and error will contain information about the error.
-func Init() (*dg.Session, error) {
+func Run() (*dg.Session, error) {
 
 	// Perform the necessary initialization
 	config, session, err := requiredInit()
@@ -21,14 +25,35 @@ func Init() (*dg.Session, error) {
 		return nil, err
 	}
 
+	// Add handler for incomming messages
+	session.AddHandler(commands.ParseCommand)
+
+	// Register command prefix
+	commands.RegisterCommandPrefix(config.CommandPrefix)
+
+	commands.RegisterBotID("xd")
+
+	// Call the helper function to register all commands
+	registerCommands()
+
+	// Seed the random number generator
+	rand.Seed(time.Now().UTC().UnixNano())
+
+	// Finally return the session and no error
 	return session, nil
+}
+
+// registerCommands registers all commands handled by the bot
+func registerCommands() {
+
+	commands.RegisterCommand("roll", roll.Roll)
 }
 
 // requiredInit performs crucial initialization tasks - loading config file and opening Discord session.
 // If any of these fails then the program can't run.
 // If everything went well the obtained Config and an opened discordgo session are returned, error in that case is nil.
 // If something went wrong both config and session are nil and error contains information on what went wrong.
-func requiredInit() (*config.Config, *dg.Session, error) {
+func requiredInit() (*ct.Config, *dg.Session, error) {
 
 	// Get the configuration file
 	config, err := configuration.GetConfig()
@@ -46,5 +71,5 @@ func requiredInit() (*config.Config, *dg.Session, error) {
 		return nil, nil, err
 	}
 
-	return config, session, nil
+	return &config, session, nil
 }
