@@ -31,8 +31,6 @@ func Run() (*dg.Session, error) {
 	// Register command prefix
 	commands.RegisterCommandPrefix(config.CommandPrefix)
 
-	commands.RegisterBotID("xd")
-
 	// Call the helper function to register all commands
 	registerCommands()
 
