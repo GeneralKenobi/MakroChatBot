@@ -2,14 +2,11 @@ package main
 
 import (
 	"fmt"
-	"math/rand"
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
-	"./commands"
-	"./configuration"
+	"./initialization"
 	"./usercommands"
 
 	"github.com/bwmarrin/discordgo"
@@ -17,33 +14,17 @@ import (
 
 func main() {
 
-	rand.Seed(time.Now().UTC().UnixNano())
+	session, err := initialization.Run()
 
-	// Get the configuration file
-	configuration, configError := configuration.GetConfig()
-
-	// If there was an error, log it and return
-	if configError != nil {
-		fmt.Println(configError)
+	if err != nil {
+		fmt.Println(err.Error())
 		return
 	}
 
-	// Create a new session for Discord
-	discord, err := discordgo.New("Bot " + configuration.Token)
-
-	// Check if there was an error
-	panicOnError("error creating discord session", err)
-
-	// Add handler for incomming messages
-	discord.AddHandler(commands.ParseCommand)
-
-	// Try to open connection, check if there were errors
-	err = discord.Open()
-	panicOnError("Error opening connection to Discord", err)
-	defer discord.Close()
-
 	// Update status with a cool message
-	discord.UpdateStatus(0, "Hello There!")
+	session.UpdateStatus(0, "I Love democracy")
+
+	defer session.Close()
 
 	// Wait here for control signal that closes the bot
 	fmt.Println("Running, press CTRL-C to exit.")
