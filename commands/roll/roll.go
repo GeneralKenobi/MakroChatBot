@@ -1,6 +1,7 @@
 package roll
 
 import (
+	"errors"
 	dgo "github.com/bwmarrin/discordgo"
 	"math/rand"
 	"strconv"
@@ -12,10 +13,11 @@ const defaultMaxRandomValue = 100
 // Roll command
 // Custom arguments:
 // 1 - if convertible to int and positive it's treated as the boundary for random number generation
-func Roll(session *dgo.Session, args []string) {
+func Roll(args []string) ([]string, error) {
 
 	if len(args) == 0 {
 		// Log error - for some reason there isn't even the guaranteed userID argument
+		return []string{}, errors.New("Error - Roll command - no arguments were provided - not even the guaranteed userID")
 	}
 
 	// Take the default max value
@@ -28,6 +30,9 @@ func Roll(session *dgo.Session, args []string) {
 			max = conversion
 		}
 	}
+
+	// Use helper func to generate messages
+	return rollHelper(max, args[0]), nil
 }
 
 // rollHelper returns a random integer number from 0 to max (excluding), assigns a reaction message that can be displayed to user.
@@ -38,6 +43,7 @@ func rollHelper(max int, userID string) []string {
 	// Generate a random number (+1 to include the max value)
 	randomNumber := rand.Intn(max + 1)
 
+	// Create message for result
 	rollMessage := userID + " rolled (0 - " + string(max) + "): " + string(randomNumber) + "!"
 
 	var reaction string
