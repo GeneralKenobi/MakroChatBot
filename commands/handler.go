@@ -2,8 +2,8 @@ package commands
 
 import (
 	comm "../communication"
+	"../logger"
 	"errors"
-	"fmt"
 	dg "github.com/bwmarrin/discordgo"
 	"strings"
 )
@@ -22,8 +22,7 @@ func ParseCommand(session *dg.Session, message *dg.MessageCreate) {
 
 	// Check if we're initialized
 	if ok, err := isInitialized(); !ok {
-		// TODO: Log error - Handler not initialized
-		fmt.Println(err.Error())
+		logger.LogError(err)
 		return
 	}
 
@@ -54,10 +53,11 @@ func ParseCommand(session *dg.Session, message *dg.MessageCreate) {
 	// Try to get a function matching to the first substring (which is the command name, the eventual remaining substrings are parameters)
 	if function, ok := registeredCommands[slice[0]]; ok {
 
-		// TODO: Log that a command is executed
-
 		// Organize the arguments into one slice - username always comes first
 		args := append([]string{message.Author.Username}, slice[1:]...)
+
+		// Log command execution
+		logger.LogCommand(message.GuildID, message.ChannelID, slice[0], args)
 
 		// If successful, log the event, execute the command and pass the remaining substrings
 		if messages, err := function(args); err == nil {

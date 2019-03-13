@@ -8,6 +8,7 @@ import (
 	"../communication"
 	"../configuration"
 	ct "../customtypes"
+	"../logger"
 	"math/rand"
 	"time"
 )
@@ -25,6 +26,8 @@ func Run() (*dg.Session, error) {
 		return nil, err
 	}
 
+	logger.Log("Core initialization complete")
+
 	// Add handler for incomming messages
 	session.AddHandler(commands.ParseCommand)
 
@@ -34,8 +37,12 @@ func Run() (*dg.Session, error) {
 	// Call the helper function to register all commands
 	registerCommands()
 
+	logger.Log("Command handler initialized")
+
 	// Seed the random number generator
 	rand.Seed(time.Now().UTC().UnixNano())
+
+	logger.Log("Random number generator seeded")
 
 	// Finally return the session and no error
 	return session, nil

@@ -23,7 +23,7 @@ func ConnectToDiscord(token string) (*dg.Session, error) {
 
 	// If so, return an error
 	if err != nil {
-		return nil, errors.New("Can't open websocket connection to DIscord. Details: " + err.Error())
+		return nil, errors.New("Can't open websocket connection to Discord. Details: " + err.Error())
 	}
 
 	// If everything went well return the sessionn and no error

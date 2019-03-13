@@ -7,6 +7,7 @@ import (
 	"syscall"
 
 	"./initialization"
+	"./logger"
 	"./usercommands"
 
 	"github.com/bwmarrin/discordgo"
@@ -17,7 +18,7 @@ func main() {
 	session, err := initialization.Run()
 
 	if err != nil {
-		fmt.Println(err.Error())
+		logger.LogError(err)
 		return
 	}
 
