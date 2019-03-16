@@ -1,7 +1,7 @@
 package commands
 
 import (
-	comm "../communication"
+	ct "../customtypes"
 	"../logger"
 	"errors"
 	dg "github.com/bwmarrin/discordgo"
@@ -12,7 +12,7 @@ import (
 const IllegalPrefix = ""
 
 // registeredCommands contains all registered commands
-var registeredCommands = make(map[string]func([]string) ([]string, error))
+var registeredCommands = make(map[string]ct.CommandHandler)
 
 // commandPrefix is the registered command prefix
 var commandPrefix string
@@ -53,15 +53,20 @@ func ParseCommand(session *dg.Session, message *dg.MessageCreate) {
 	// Try to get a function matching to the first substring (which is the command name, the eventual remaining substrings are parameters)
 	if function, ok := registeredCommands[slice[0]]; ok {
 
-		// Organize the arguments into one slice - username always comes first
-		args := append([]string{message.Author.Username}, slice[1:]...)
+		// Construct a struct with arguments
+		args := ct.CommandArgs{
+			CommandName: slice[0],
+			Username:    message.Author.Username,
+			UserID:      message.Author.ID,
+			UserArgs:    slice[1:]}
 
 		// Log command execution
-		logger.LogCommand(message.GuildID, message.ChannelID, slice[0], args)
+		logger.LogCommand(message.GuildID, message.ChannelID, args)
 
-		// If successful, log the event, execute the command and pass the remaining substrings
-		if messages, err := function(args); err == nil {
-			comm.Send(session, message.ChannelID, messages)
+		// If there were no errors when running the command
+		if output, err := function(&args); err == nil {
+			// Send the produced message to the source channel
+			session.ChannelMessageSendComplex(message.ChannelID, output)
 		}
 	}
 }
@@ -70,7 +75,7 @@ func ParseCommand(session *dg.Session, message *dg.MessageCreate) {
 // When user types that string the assigned function will be executed.
 // DO NOT use any prefixes when registering functions.
 // Command names are case insensitive.
-func RegisterCommand(name string, function func([]string) ([]string, error)) bool {
+func RegisterCommand(name string, function ct.CommandHandler) bool {
 
 	// Check if there's already a command registered for that name
 	if _, ok := registeredCommands[name]; ok {

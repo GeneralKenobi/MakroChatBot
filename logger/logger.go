@@ -1,6 +1,7 @@
 package logger
 
 import (
+	ct "../customtypes"
 	"fmt"
 	"strings"
 	"time"
@@ -20,13 +21,15 @@ func LogError(err error) {
 	Log(err.Error())
 }
 
-func LogCommand(guildID, channelID, command string, args []string) {
+// LogCommand logs information about command being invoked by a user
+func LogCommand(guildID, channelID string, args ct.CommandArgs) {
 
-	// Create log message. Specify the guild, channel, command and arguments
+	// Create log message. Specify the guild, channel, command, user and arguments
 	log := "Guild: " + guildID +
 		", Channel: " + channelID +
-		", Command: \"" + command +
-		"\", args: " + strings.Join(args, ", ")
+		", Command: \"" + args.CommandName +
+		"\", User: " + args.Username + " (ID: " + args.UserID + ")" +
+		", args: " + strings.Join(args.UserArgs, ", ")
 
 	Log(log)
 }
