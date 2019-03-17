@@ -4,6 +4,7 @@ import (
 	dg "github.com/bwmarrin/discordgo"
 
 	"../commands"
+	"../commands/reactions"
 	roll "../commands/roll"
 	"../communication"
 	"../configuration"
@@ -52,6 +53,7 @@ func Run() (*dg.Session, error) {
 func registerCommands() {
 
 	commands.RegisterCommand("roll", roll.Roll)
+	commands.RegisterCommand("group1", reactions.ImageReaction)
 }
 
 // requiredInit performs crucial initialization tasks - loading config file and opening Discord session.
