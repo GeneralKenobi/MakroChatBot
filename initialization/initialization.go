@@ -54,6 +54,7 @@ func registerCommands() {
 
 	handler.RegisterCommand("roll", roll.Roll)
 	handler.RegisterCommand("group1", reactions.ImageReaction)
+	handler.RegisterCommand("group2", reactions.ImageReaction)
 }
 
 // requiredInit performs crucial initialization tasks - loading config file and opening Discord session.
