@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"../communication"
 	ct "../customtypes"
 	"../logger"
 	"errors"
@@ -63,10 +64,10 @@ func ParseCommand(session *dg.Session, message *dg.MessageCreate) {
 		// Log command execution
 		logger.LogCommand(message.GuildID, message.ChannelID, args)
 
-		// If there were no errors when running the command
-		if output, err := function(&args); err == nil {
+		// If there were no errors when running the command and it returned a message to send to the channel
+		if output, err := function(&args); err == nil && output != nil {
 			// Send the produced message to the source channel
-			session.ChannelMessageSendComplex(message.ChannelID, output)
+			communication.SendToChannel(message.ChannelID, output)
 		}
 	}
 }
