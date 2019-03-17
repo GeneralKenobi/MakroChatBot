@@ -2,8 +2,8 @@ package communication
 
 import (
 	"errors"
-	"github.com/GeneralKenobi/MakroChatbot/logger"
 	dg "github.com/bwmarrin/discordgo"
+	"github.com/generalkenobi/makrochatbot/logger"
 )
 
 // SendToChannel delivers the provided messages to appropriate discord server/channel.

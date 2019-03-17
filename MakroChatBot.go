@@ -6,8 +6,8 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/GeneralKenobi/MakroChatbot/initialization"
-	"github.com/GeneralKenobi/MakroChatbot/logger"
+	"github.com/generalkenobi/makrochatbot/initialization"
+	"github.com/generalkenobi/makrochatbot/logger"
 )
 
 func main() {

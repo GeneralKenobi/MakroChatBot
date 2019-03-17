@@ -1,8 +1,8 @@
 package roll
 
 import (
-	ct "github.com/GeneralKenobi/MakroChatbot/customtypes"
 	dg "github.com/bwmarrin/discordgo"
+	ct "github.com/generalkenobi/makrochatbot/customtypes"
 	"math/rand"
 	"strconv"
 )

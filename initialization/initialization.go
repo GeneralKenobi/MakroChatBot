@@ -3,13 +3,14 @@ package initialization
 import (
 	dg "github.com/bwmarrin/discordgo"
 
-	"github.com/GeneralKenobi/MakroChatbot/commands/handler"
-	"github.com/GeneralKenobi/MakroChatbot/commands/reactions"
-	"github.com/GeneralKenobi/MakroChatbot/commands/roll"
-	"github.com/GeneralKenobi/MakroChatbot/communication"
-	"github.com/GeneralKenobi/MakroChatbot/configuration"
-	ct "github.com/GeneralKenobi/MakroChatbot/customtypes"
-	"github.com/GeneralKenobi/MakroChatbot/logger"
+	"github.com/generalkenobi/makrochatbot/commands/handler"
+	pm "github.com/generalkenobi/makrochatbot/commands/platformmonitor"
+	"github.com/generalkenobi/makrochatbot/commands/reactions"
+	"github.com/generalkenobi/makrochatbot/commands/roll"
+	"github.com/generalkenobi/makrochatbot/communication"
+	"github.com/generalkenobi/makrochatbot/configuration"
+	ct "github.com/generalkenobi/makrochatbot/customtypes"
+	"github.com/generalkenobi/makrochatbot/logger"
 	"math/rand"
 	"time"
 )

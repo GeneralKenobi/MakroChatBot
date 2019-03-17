@@ -2,10 +2,10 @@ package handler
 
 import (
 	"errors"
-	"github.com/GeneralKenobi/MakroChatbot/communication"
-	ct "github.com/GeneralKenobi/MakroChatbot/customtypes"
-	"github.com/GeneralKenobi/MakroChatbot/logger"
 	dg "github.com/bwmarrin/discordgo"
+	"github.com/generalkenobi/makrochatbot/communication"
+	ct "github.com/generalkenobi/makrochatbot/customtypes"
+	"github.com/generalkenobi/makrochatbot/logger"
 	"strings"
 )
 

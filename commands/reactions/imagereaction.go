@@ -2,8 +2,8 @@ package reactions
 
 import (
 	"errors"
-	ct "github.com/GeneralKenobi/MakroChatbot/customtypes"
 	dg "github.com/bwmarrin/discordgo"
+	ct "github.com/generalkenobi/makrochatbot/customtypes"
 	"os"
 )
 
