@@ -68,6 +68,9 @@ func ParseCommand(session *dg.Session, message *dg.MessageCreate) {
 		if output, err := function(&args); err == nil && output != nil {
 			// Send the produced message to the source channel
 			communication.SendToChannel(message.ChannelID, output)
+		} else {
+			// Otherwise log the error
+			logger.LogError(err)
 		}
 	}
 }
