@@ -1,8 +1,8 @@
 package communication
 
 import (
-	"../logger"
 	"errors"
+	"github.com/GeneralKenobi/MakroChatbot/logger"
 	dg "github.com/bwmarrin/discordgo"
 )
 

@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"os"
 
-	ct "../customtypes"
+	ct "github.com/GeneralKenobi/MakroChatbot/customtypes"
 )
 
 // Name of the config file

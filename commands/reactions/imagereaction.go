@@ -1,7 +1,7 @@
 package reactions
 
 import (
-	ct "../../customtypes"
+	ct "github.com/GeneralKenobi/MakroChatbot/customtypes"
 	dg "github.com/bwmarrin/discordgo"
 	"os"
 )

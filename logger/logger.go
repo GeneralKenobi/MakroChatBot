@@ -1,7 +1,7 @@
 package logger
 
 import (
-	ct "../customtypes"
+	ct "github.com/GeneralKenobi/MakroChatbot/customtypes"
 	"fmt"
 	"strings"
 	"time"

@@ -3,13 +3,13 @@ package initialization
 import (
 	dg "github.com/bwmarrin/discordgo"
 
-	"../commands"
-	"../commands/reactions"
-	roll "../commands/roll"
-	"../communication"
-	"../configuration"
-	ct "../customtypes"
-	"../logger"
+	"github.com/GeneralKenobi/MakroChatbot/commands/handler"
+	"github.com/GeneralKenobi/MakroChatbot/commands/reactions"
+	"github.com/GeneralKenobi/MakroChatbot/commands/roll"
+	"github.com/GeneralKenobi/MakroChatbot/communication"
+	"github.com/GeneralKenobi/MakroChatbot/configuration"
+	ct "github.com/GeneralKenobi/MakroChatbot/customtypes"
+	"github.com/GeneralKenobi/MakroChatbot/logger"
 	"math/rand"
 	"time"
 )
@@ -30,10 +30,10 @@ func Run() (*dg.Session, error) {
 	logger.Log("Core initialization complete")
 
 	// Add handler for incomming messages
-	session.AddHandler(commands.ParseCommand)
+	session.AddHandler(handler.ParseCommand)
 
 	// Register command prefix
-	commands.RegisterCommandPrefix(config.CommandPrefix)
+	handler.RegisterCommandPrefix(config.CommandPrefix)
 
 	// Call the helper function to register all commands
 	registerCommands()
@@ -52,8 +52,8 @@ func Run() (*dg.Session, error) {
 // registerCommands registers all commands handled by the bot
 func registerCommands() {
 
-	commands.RegisterCommand("roll", roll.Roll)
-	commands.RegisterCommand("group1", reactions.ImageReaction)
+	handler.RegisterCommand("roll", roll.Roll)
+	handler.RegisterCommand("group1", reactions.ImageReaction)
 }
 
 // requiredInit performs crucial initialization tasks - loading config file and opening Discord session.

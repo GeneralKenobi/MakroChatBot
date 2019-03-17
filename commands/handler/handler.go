@@ -1,10 +1,10 @@
-package commands
+package handler
 
 import (
-	"../communication"
-	ct "../customtypes"
-	"../logger"
 	"errors"
+	"github.com/GeneralKenobi/MakroChatbot/communication"
+	ct "github.com/GeneralKenobi/MakroChatbot/customtypes"
+	"github.com/GeneralKenobi/MakroChatbot/logger"
 	dg "github.com/bwmarrin/discordgo"
 	"strings"
 )
