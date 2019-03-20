@@ -18,9 +18,65 @@ var registeredCommands = make(map[string]ct.CommandHandler)
 // commandPrefix is the registered command prefix
 var commandPrefix string
 
-// ParseCommand is a handler for incomming messages
+// ParseCommand is a handler for incomming messages, it is hooked into Discord
 func ParseCommand(session *dg.Session, message *dg.MessageCreate) {
 
+	// Run the helper function
+	go parseCommand(message)
+}
+
+// RegisterCommand registers command - assigns a specific function to a specific string.
+// When user types that string the assigned function will be executed.
+// DO NOT use any prefixes when registering functions.
+// Command names are case insensitive.
+func RegisterCommand(name string, function ct.CommandHandler) bool {
+
+	// Check if there's already a command registered for that name
+	if _, ok := registeredCommands[name]; ok {
+		// If so, return false - it won't be overwritted
+		return false
+	}
+
+	// If the name was not present, then we can register a function to it
+	registeredCommands[name] = function
+	return true
+}
+
+// RegisterCommandPrefix registers the given string as recognized command prefix.
+// Prefix can be registered only once. Future calls to this function won't do anything.
+// Returns true if registration was successful, false otherwise.
+// All prefixes are legal except for the IllegalPrefix "" (empty string)
+func RegisterCommandPrefix(prefix string) bool {
+
+	// If there already is a prefix defined or the provided prefix is illegal, return false
+	if commandPrefix != "" || prefix == "" {
+		return false
+	}
+
+	// Otherwise assign the new value and return success
+	commandPrefix = prefix
+	return true
+}
+
+// isPrefixRegistered returns true if commandPrefix was correctly registered
+func isPrefixRegistered() bool {
+	return commandPrefix != IllegalPrefix
+}
+
+// isInitialized returns true if all necessary initialization was performed. If it's not the case returns false and assigns an error (based on first
+// caught unitialized aspect)
+func isInitialized() (bool, error) {
+
+	// Check if prefix was initialized
+	if !isPrefixRegistered() {
+		return false, errors.New("Handler error: prefix was not initialized")
+	}
+
+	return true, nil
+}
+
+// parseCommand is a helper function to ParseCommand. It analyses the message and, if needed, invokes a command.
+func parseCommand(message *dg.MessageCreate) {
 	// Check if we're initialized
 	if ok, err := isInitialized(); !ok {
 		logger.LogError(err)
@@ -75,54 +131,4 @@ func ParseCommand(session *dg.Session, message *dg.MessageCreate) {
 			logger.LogError(err)
 		}
 	}
-}
-
-// RegisterCommand registers command - assigns a specific function to a specific string.
-// When user types that string the assigned function will be executed.
-// DO NOT use any prefixes when registering functions.
-// Command names are case insensitive.
-func RegisterCommand(name string, function ct.CommandHandler) bool {
-
-	// Check if there's already a command registered for that name
-	if _, ok := registeredCommands[name]; ok {
-		// If so, return false - it won't be overwritted
-		return false
-	}
-
-	// If the name was not present, then we can register a function to it
-	registeredCommands[name] = function
-	return true
-}
-
-// RegisterCommandPrefix registers the given string as recognized command prefix.
-// Prefix can be registered only once. Future calls to this function won't do anything.
-// Returns true if registration was successful, false otherwise.
-// All prefixes are legal except for the IllegalPrefix "" (empty string)
-func RegisterCommandPrefix(prefix string) bool {
-
-	// If there already is a prefix defined or the provided prefix is illegal, return false
-	if commandPrefix != "" || prefix == "" {
-		return false
-	}
-
-	// Otherwise assign the new value and return success
-	commandPrefix = prefix
-	return true
-}
-
-// isPrefixRegistered returns true if commandPrefix was correctly registered
-func isPrefixRegistered() bool {
-	return commandPrefix != IllegalPrefix
-}
-
-// isInitialized returns true if all necessary initialization was performed. If it's not the case returns false and assigns an error (based on first
-// caught unitialized aspect)
-func isInitialized() (bool, error) {
-
-	// Check if prefix was initialized
-	if !isPrefixRegistered() {
-		return false, errors.New("Handler error: prefix was not initialized")
-	}
-
-	return true, nil
 }
