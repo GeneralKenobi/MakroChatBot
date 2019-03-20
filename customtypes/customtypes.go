@@ -31,4 +31,7 @@ type Config struct {
 
 	// Token to use when connecting to the server
 	CommandPrefix string
+
+	// Time period (in seconds) between two subsequent platform checks
+	PlatformMonitoringPeriod int
 }

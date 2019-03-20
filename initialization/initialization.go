@@ -38,15 +38,15 @@ func Run() (*dg.Session, error) {
 
 	// Call the helper function to register all commands
 	registerCommands()
-
 	logger.Log("Command handler initialized")
 
 	// Seed the random number generator
 	rand.Seed(time.Now().UTC().UnixNano())
-
 	logger.Log("Random number generator seeded")
 
-	pm.Start(10)
+	// Start platform monitoring service
+	pm.Start(config.PlatformMonitoringPeriod)
+	logger.Log("Platform monitoring service started")
 
 	// Finally return the session and no error
 	return session, nil
