@@ -46,6 +46,8 @@ func Run() (*dg.Session, error) {
 
 	logger.Log("Random number generator seeded")
 
+	pm.Start(10)
+
 	// Finally return the session and no error
 	return session, nil
 }
@@ -56,7 +58,8 @@ func registerCommands() {
 	handler.RegisterCommand("roll", roll.Roll)
 	handler.RegisterCommand("group1", reactions.ImageReaction)
 	handler.RegisterCommand("group2", reactions.ImageReaction)
-	handler.RegisterCommand("mon", pm.Monitor)
+	handler.RegisterCommand("subscribe", pm.CreateMonitorSubscription)
+	handler.RegisterCommand("unsubscribeall", pm.RemoveAllSubscriptions)
 }
 
 // requiredInit performs crucial initialization tasks - loading config file and opening Discord session.

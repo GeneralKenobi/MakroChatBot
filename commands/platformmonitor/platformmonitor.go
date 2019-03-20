@@ -9,6 +9,7 @@ import (
 	dg "github.com/bwmarrin/discordgo"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -27,7 +28,45 @@ var monitoredURLs = make(map[string]map[monitorSubscription]struct{})
 // monitoredURLsMutex is a mutex used to take ownership of monitoredURLs
 var monitoredURLsMutex sync.Mutex
 
-func Subscribe(args *ct.CommandArgs) (*dg.MessageSend, error) {
+// whitelistedURLs contains whitelisted urls and their aliases - those are only urls that may be subscribed to.
+var whitelistedURLs = map[string]string{
+	"rau1": "https://platforma.polsl.pl/rau1/",
+	"rau2": "https://platforma.polsl.pl/rau2/",
+}
+
+// CreateMonitorSubscription adds a new subscription to the monitor service
+// Arguments:
+// 1. Name to subscribe to
+// 2. Platform alias (e.g. "rau1", "rau2")
+func CreateMonitorSubscription(args *ct.CommandArgs) (*dg.MessageSend, error) {
+
+	if len(args.UserArgs) < 2 {
+		// Can't subscribe - not enough arguments
+		return nil, errors.New("CreateMonitorSubscription: Not enough arguments: need 2, received " + strconv.Itoa(len(args.UserArgs)))
+	}
+
+	listenToName, urlAlias := args.UserArgs[0], args.UserArgs[1]
+
+	// Try to get the url out of whitelist
+	url, ok := whitelistedURLs[urlAlias]
+
+	if !ok {
+		// TODO: Notify user that the specified platform is incorrect
+		return nil, errors.New("CreateMonitorSubscription: Incorrect platform specified: " + urlAlias)
+	}
+
+	// If everything was correct, add a new subscription
+	addSubscriber(args.UserID, listenToName, url)
+	return nil, nil
+}
+
+// RemoveAllSubscriptions removes all subscriptions from the user that invoked the command
+func RemoveAllSubscriptions(args *ct.CommandArgs) (*dg.MessageSend, error) {
+
+	// Remove the subscriptions
+	removeSubscriber(args.UserID)
+
+	// TODO: Notify the user
 
 	return nil, nil
 }
@@ -42,7 +81,7 @@ func Start(seconds int) chan int {
 	stopChannel := make(chan int)
 
 	// Start the monitoring routine using the provided number of seconds and the created stop channel
-	monitorRoutine(seconds, stopChannel)
+	go monitorRoutine(seconds, stopChannel)
 
 	return stopChannel
 }
@@ -148,6 +187,9 @@ func sendToUsers(messages map[string]string) {
 // subscriptions are all subscriptions to check
 func findNamesInHTML(htmlText string, subscriptions map[monitorSubscription]struct{}) []monitorSubscription {
 
+	// Turn the text into lower-case, otherwise trivial mismatches would happen (such as:"Smith" and "smith" wouldn't match)
+	htmlText = strings.ToLower(htmlText)
+
 	// Slice for matched subscriptions
 	var matchedSubscriptions []monitorSubscription
 
@@ -221,7 +263,7 @@ func addSubscriber(userID, subscribeTo, url string) {
 	// Create a subscription containing the required information
 	subscription := monitorSubscription{
 		SubscriberID: userID,
-		SubscribedTo: subscribeTo,
+		SubscribedTo: strings.ToLower(subscribeTo),
 	}
 
 	// First, check if the url exists

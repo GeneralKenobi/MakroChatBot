@@ -7,6 +7,6 @@ type monitorSubscription struct {
 	// SubscriberID is the DiscordID of subscriber (user that will be notified when a person is found on the platform)
 	SubscriberID string
 
-	// Name to search for on the platform
+	// Name to search for on the platform, should be assigned as lowercase
 	SubscribedTo string
 }
