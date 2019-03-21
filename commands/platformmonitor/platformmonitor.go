@@ -30,8 +30,8 @@ var monitoredURLsMutex sync.Mutex
 
 // whitelistedURLs contains whitelisted urls and their aliases - those are only urls that may be subscribed to.
 var whitelistedURLs = map[string]string{
-	"rau1": "https://platforma.polsl.pl/rau1/",
-	"rau2": "https://platforma.polsl.pl/rau2/",
+	"rau2": "https://platforma.polsl.pl/rau2",
+	"rau3": "https://platforma.polsl.pl/rau3",
 }
 
 // CreateMonitorSubscription adds a new subscription to the monitor service
@@ -39,6 +39,10 @@ var whitelistedURLs = map[string]string{
 // 1. Name to subscribe to
 // 2. Platform alias (e.g. "rau1", "rau2")
 func CreateMonitorSubscription(args *ct.CommandArgs) (*dg.MessageSend, error) {
+
+	// Message that will be sent to the user as feedback at the end of the call
+	message := &dg.MessageSend{}
+	defer communication.SendToUser(args.UserID, message)
 
 	if len(args.UserArgs) < 2 {
 		// Can't subscribe - not enough arguments
@@ -52,11 +56,13 @@ func CreateMonitorSubscription(args *ct.CommandArgs) (*dg.MessageSend, error) {
 
 	if !ok {
 		// TODO: Notify user that the specified platform is incorrect
+		message.Content = "The specified platform is incorrect"
 		return nil, errors.New("CreateMonitorSubscription: Incorrect platform specified: " + urlAlias)
 	}
 
-	// If everything was correct, add a new subscription
-	addSubscriber(args.UserID, listenToName, url)
+	// If everything was correct, add a new subscription. Use its return value as feedback for user
+	message.Content = addSubscriber(args.UserID, listenToName, url)
+
 	return nil, nil
 }
 
@@ -64,9 +70,32 @@ func CreateMonitorSubscription(args *ct.CommandArgs) (*dg.MessageSend, error) {
 func RemoveAllSubscriptions(args *ct.CommandArgs) (*dg.MessageSend, error) {
 
 	// Remove the subscriptions
-	removeSubscriber(args.UserID)
+	removedSubscriptions := removeSubscriber(args.UserID)
 
-	// TODO: Notify the user
+	var messageContent string
+
+	if len(removedSubscriptions) > 0 {
+
+		// Add a header to the slice of removed subscriptions
+		removedSubscriptions = append([]string{"Removed:"}, removedSubscriptions...)
+
+		// And join it using newline as separator.
+		// It will look like that:
+		// Removed:
+		// https://platform.polsl.pl/rau1 : Smiths
+		// https://platform.polsl.pl/rau2 : Thompson
+		messageContent = strings.Join(removedSubscriptions, "\n")
+	} else {
+		messageContent = "You weren't subscribed to anyone"
+	}
+
+	// Create a message with the string message
+	message := &dg.MessageSend{
+		Content: messageContent,
+	}
+
+	// And send it to the user
+	communication.SendToUser(args.UserID, message)
 
 	return nil, nil
 }
@@ -127,6 +156,8 @@ func monitorRoutine(seconds int, stopChannel chan int) {
 // matches.
 func runPlatfromCheck() {
 
+	logger.Log("Running platform check")
+
 	// Take ownership of the mutex in order to work with monitoredURLs - we don't want it to be modified in the process
 	monitoredURLsMutex.Lock()
 	defer monitoredURLsMutex.Unlock()
@@ -156,7 +187,7 @@ func runPlatfromCheck() {
 			}
 
 			// The if above made sure that the header is present in the map, add to it newline for the triggered subscription
-			toNotify[subscription.SubscriberID] += "\n" + subscription.SubscribedTo + " appeared on " + url
+			toNotify[subscription.SubscriberID] += "\n" + subscription.SubscribedTo + " appeared on " + url[strings.LastIndex(url, "/"):]
 		}
 	}
 
@@ -254,7 +285,8 @@ func downloadURLAsHTML(url string) (string, error) {
 }
 
 // addSubscriber adds a new subscriber to the specified url
-func addSubscriber(userID, subscribeTo, url string) {
+// Returns that can be sent to user as feedback (Information about success, failure, etc.).
+func addSubscriber(userID, subscribeTo, url string) string {
 
 	// Take ownership of the mutex in order to work with monitoredURLs
 	monitoredURLsMutex.Lock()
@@ -275,16 +307,17 @@ func addSubscriber(userID, subscribeTo, url string) {
 	// Check if such subscription is already present (url is guaranteed to be in the map)
 	if _, ok := monitoredURLs[url][subscription]; ok {
 		// If so, notify the user that he's already subscribed to this particular person on this particular platform
-		// TODO: Notify the user
-	} else {
-		// If the subscription is new, add it to the map
-		monitoredURLs[url][subscription] = struct{}{}
-		// TODO: Notify the user
+		return "You're already subscribed to this name on this url"
 	}
+
+	// If the subscription is new, add it to the map
+	monitoredURLs[url][subscription] = struct{}{}
+	return "Subscribed successfully"
 }
 
-// removeSubscriber removes all subscriptions assigned to the given userID
-func removeSubscriber(userID string) {
+// removeSubscriber removes all subscriptions assigned to the given userID.
+// Returns all removed subscriptions as a slice. Each entry has a form "url : subscribed_to".
+func removeSubscriber(userID string) []string {
 
 	// Take ownership of the mutex in order to work with monitoredURLs
 	monitoredURLsMutex.Lock()
@@ -303,7 +336,7 @@ func removeSubscriber(userID string) {
 			if subscription.SubscriberID == userID {
 
 				// Add the pair of url and subscribed to name to the designated slice
-				removedSubscriptions = append(removedSubscriptions, url+" : "+subscription.SubscribedTo)
+				removedSubscriptions = append(removedSubscriptions, url[strings.LastIndex(url, "/"):]+" : "+subscription.SubscribedTo)
 
 				// And delete subscription key from the collection
 				delete(urlSubscriptions, subscription)
@@ -316,7 +349,7 @@ func removeSubscriber(userID string) {
 		}
 	}
 
-	// TODO: Notify user about removed subscriptions
+	return removedSubscriptions
 }
 
 // removeSubscriberFrom removes the specified subscription (userID & subscribedTo pair) from the given url.
